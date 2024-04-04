@@ -9,7 +9,12 @@
 </script>
 
 <template>
-  <div id="app"></div>
+  <div id="app">
+    <AppHeader/>
+    <div class="container mt-3">
+      <router-view />
+    </div>
+  </div>
 </template>
 
 <style>

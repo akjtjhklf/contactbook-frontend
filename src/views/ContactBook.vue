@@ -1,7 +1,3 @@
-import ContactCard from '@/components/ContactCard.vue'; import ContactList from
-'@/components/ContactList.vue'; import InputSearch from
-'@/components/InputSearch.vue';
-
 <template>
   <div class="page row">
     <div class="col-md-10">
@@ -44,83 +40,83 @@ import ContactCard from '@/components/ContactCard.vue'; import ContactList from
 </template>
 
 <script>
-import ContactCard from '@/components/ContactCard.vue';
-import InputSearch from '@/components/InputSearch.vue';
-import ContactList from '@/components/ContactList.vue';
-import ContactService from '@/services/contact.service';
+import ContactCard from "@/components/ContactCard.vue";
+import InputSearch from "@/components/InputSearch.vue";
+import ContactList from "@/components/ContactList.vue";
+import ContactService from "@/services/contact.service";
 
 export default {
-    components: {
-        ContactCard,
-        InputSearch,
-        ContactList,
+  components: {
+    ContactCard,
+    InputSearch,
+    ContactList,
+  },
+  data() {
+    return {
+      contacts: [],
+      activeIndex: -1,
+      searchText: "",
+    };
+  },
+  watch: {
+    // Giám sát các thay đổi của biến searchText.
+    // Bỏ chọn phần tử đang được chọn trong danh sách.
+    searchText() {
+      this.activeIndex = -1;
     },
-    data() {
-        return {
-            contact: [],
-            activeIndex: -1,
-            searchText: "",
-        };
+  },
+  computed: {
+    // Chuyển các đối tượng contact thành chuỗi để tiện cho tìm kiếm.
+    contactStrings() {
+      return this.contacts.map((contact) => {
+        const { name, email, address, phone } = contact;
+        return [name, email, address, phone].join("");
+      });
     },
-    watch: {
-        //
-        //
-        searchText() {
-            this.activeIndex = -1;
-        },
+    // Trả về các contact có chứa thông tin cần tìm kiếm.
+    filteredContacts() {
+      if (!this.searchText) return this.contacts;
+      return this.contacts.filter((_contact, index) =>
+        this.contactStrings[index].includes(this.searchText)
+      );
     },
-    computed: {
-        //Chuyen cac doi tuong contact thanh chuoi de cho tien tim kiem
-        contactString() {
-            return this.contacts.map((contact) => {
-                const { name, email, address, phone } = contact;
-                return [ name, email, address, phone ].join("");
-            });
-        },
-        filteredContacts() {
-            if (!this.searchText) return this.contacts;
-            return this.contacts.filter((_contact, index) =>
-                this.contactString[index].includes(this.searchText)
-            );
-        },
-        activeContact() {
-            if (this.activeIndex < 0) return null;
-            return this.filteredContacts[this.activeIndex];
-        },
-        filteredContactsCount() {
-            return this.filteredContacts.length;
-        },
+    activeContact() {
+      if (this.activeIndex < 0) return null;
+      return this.filteredContacts[this.activeIndex];
     },
-    methods: {
-        async retrieveContacts() {
-            try {
-                this.contacts = await ContactService.getAll();
-            } catch (error) {
-                console.log(error);
-            }
-        },
-        refreshList() {
-            this.retrieveContacts();
-            this.activeIndex = -1;
-        },
-        async removeAllContacts() {
-            if (confirm("Ban muon xoa tat ca lien he?")) {
-                try {
-                    await ContactService.deleteAll();
-                    this.refreshList;
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-        },
-        goToAddContact() {
-            this.$router.push({ name: "contact.add"});
-        },
+    filteredContactsCount() {
+      return this.filteredContacts.length;
     },
-    mounted() {
-        this.refreshList();
+  },
+  methods: {
+    async retrieveContacts() {
+      try {
+        this.contacts = await ContactService.getAll();
+      } catch (error) {
+        console.log(error);
+      }
     },
-
+    refreshList() {
+      this.retrieveContacts();
+      this.activeIndex = -1;
+    },
+    async removeAllContacts() {
+      if (confirm("Bạn muốn xóa tất cả Liên hệ?")) {
+        try {
+          await ContactService.deleteAll();
+          this.refreshList();
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    },
+    goToAddContact() {
+      this.$router.push({ name: "contact.add" });
+    },
+  },
+  mounted() {
+    this.refreshList();
+  },
 };
 </script>
 
